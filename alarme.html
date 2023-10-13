@@ -1,50 +1,81 @@
 <div>
-  <p>loom: <span id="prix-trb"></span></p>
-  <audio id="audio" controls>
-    <source src="https://github.com/berru-g/console-play-music/raw/master/son/FL_HHL_Green_078_Guitars.wav" type="audio/mpeg">
-    Votre navigateur ne supporte pas l'élément audio.
-  </audio>
-</div>
-<script>
+  <img src="https://github.com/berru-g/All-in-one-dashboard/blob/main/img/icons8-cash-100.png?raw=true"></img>
+    <p>loom: <span id="prix-trb"></span></p>
+    <audio id="audio" controls>
+      <source src="https://github.com/berru-g/console-play-music/raw/master/son/FL_HHL_Green_078_Guitars.wav" type="audio/mpeg">
+      Votre navigateur ne supporte pas l'élément audio.
+    </audio>
+  </div>
+<p>wallet <span id="montant-total-trb"></span></p>
 
-</script>  
-<script src="https://widgets.coingecko.com/coingecko-coin-price-chart-widget.js"></script>
-<coingecko-coin-price-chart-widget currency="usd" coin-id="loom-network-new" locale="en" height="300"></coingecko-coin-price-chart-widget>
+<style>
+  audio{visibility:hidden;}body{text-align:center;margin-top:10%;font-size:30px;color:grey;background-color:black;} img{visibility:hidden;}
+</style>
+
 <script>
   const coinGeckoURL = "https://api.coingecko.com/api/v3/simple/price";
   const params = {
     ids: "loom-network-new",
     vs_currencies: "usd",
   };
-  
-  const seuilSuperieur = 0.28; 
-  const seuilInferieur = 0.27; 
-  
+
+  const seuilSuperieur = 0.29;
+  const seuilInferieur = 0.27;
+
   const prixTRBElement = document.getElementById("prix-trb");
   const audioElement = document.getElementById("audio");
-  
+
+  function setElementVisibility(element, visible) {
+    element.style.visibility = visible ? 'visible' : 'hidden';
+  }
+
+  function updateBackgroundColor(color) {
+    document.body.style.backgroundColor = color;
+  }
+
+  function playAudio() {
+    audioElement.play();
+  }
+
+function handlePriceChange(prixTRB) {
+  prixTRBElement.textContent = prixTRB + " USD";
+
+  updateMontantTotal(prixTRB);
+
+  if (prixTRB > seuilSuperieur) {
+    console.log("Gain");
+    updateBackgroundColor('lightgreen');
+    setElementVisibility(document.querySelector('img'), true);
+    playAudio();
+  } else if (prixTRB < seuilInferieur) {
+    console.log("Perte");
+    updateBackgroundColor('lightcoral');
+    playAudio();
+  }
+}
+
+
   function fetchPrixTRB() {
     fetch(`${coinGeckoURL}?${new URLSearchParams(params)}`)
       .then((response) => response.json())
       .then((data) => {
-        const prixTRB = data.["loom-network-new"].usd;
-        prixTRBElement.textContent = prixTRB + " USD";
-  
-        if (prixTRB > seuilSuperieur) {
-          console.log("Gain");
-          audioElement.play();
-          document.querySelector('body').style.backgroundColor = 'lightgreen';
-        } else if (prixTRB < seuilInferieur) {
-          console.log("Perte");
-          audioElement.play();
-          document.querySelector('body').style.backgroundColor = 'lightcoral';
-        }
+        const prixTRB = data["loom-network-new"].usd;
+        handlePriceChange(prixTRB);
       })
       .catch((error) => {
         console.error("Erreur lors de la récupération des données de CoinGecko:", error);
       });
   }
-  
-  setInterval(fetchPrixTRB, 10000); 
-  fetchPrixTRB(); 
-</script>  
+
+const montantTotalTRBElement = document.getElementById("montant-total-trb");
+
+function updateMontantTotal(prixTRB) {
+  const montantTotal = prixTRB * 3180.73;
+  montantTotalTRBElement.textContent = montantTotal + " USD";
+}
+
+
+
+  setInterval(fetchPrixTRB, 10000);
+  fetchPrixTRB();
+</script>
